@@ -1,6 +1,9 @@
 package com.upgrad.ublog.servlets;
 
+import com.upgrad.ublog.utils.EmailValidator;
+
 import javax.servlet.ServletException;
+import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;	import javax.servlet.http.HttpServletResponse;
@@ -59,28 +62,46 @@ import java.util.Enumeration;
  *  TODO 6.18: If UserService is not able to process the request and throws an exception, get the
  *   message stored in the exception object and display the same message on the index.jsp page.
  */
-
+@WebServlet("/ublog/user")
 public class UserServlet  extends HttpServlet {
 
 
     @Override
-    protected void doGet(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException{
-        res.getWriter().println("Learn @ upgrad");
+    public void init() throws ServletException{
     }
 
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
         String actionType = req.getParameter("actionType");
         String emailID = req.getParameter("email");
+
+//        if (!EmailValidator.isValidEmail(emailID)){
+//            req.setAttribute("isError",true);
+//            req.setAttribute("error","email is invalid");
+//            req.getRequestDispatcher("/index.jsp").forward(req,res);
+//        }
+
         String password = req.getParameter("password");
 
         switch (actionType){
             case "Sign In":
                 try{
-//                    accountService.login(account)
-                    req.getSession().setAttribute("isLoggedIn",true);
-                    req.getSession().setAttribute("email",emailID);
-                    req.getRequestDispatcher("/Home.jsp").forward(req,res);
+                    if (!EmailValidator.isValidEmail(emailID)){
+
+                        req.setAttribute("isError",true);
+                         req.setAttribute("error","Email is invalid ");
+                         req.getRequestDispatcher("/index.jsp").forward(req,res);
+                    }else if(password == null){
+                        req.setAttribute("isError",true);
+                        req.setAttribute("error","Password cannot be empty ");
+                        req.getRequestDispatcher("/index.jsp").forward(req,res);
+                    }
+                    else{
+                        req.getSession().setAttribute("isLoggedIn", true);
+                        req.getSession().setAttribute("email",emailID);
+                        req.getRequestDispatcher("/Home.jsp").forward(req,res);
+                    }
+
 
                 } catch (Exception e){
                     req.setAttribute("isError", true);
@@ -91,10 +112,22 @@ public class UserServlet  extends HttpServlet {
 
             case "Sign Up":
                 try{
-//                    accountService.register(account)
-                    req.getSession().setAttribute("isLoggedIn",true);
-                    req.getSession().setAttribute("email",emailID);
-                    req.getRequestDispatcher("/Home.jsp").forward(req,res);
+                    if (!EmailValidator.isValidEmail(emailID)){
+                        req.setAttribute("isError",true);
+                        req.setAttribute("error","Email is invalid");
+                        req.getRequestDispatcher("/index.jsp").forward(req,res);
+                    }else if(password == null){
+                        req.setAttribute("isError",true);
+                        req.setAttribute("error","Password cannot be empty ");
+                        req.getRequestDispatcher("/index.jsp").forward(req,res);
+                    }
+                    else{
+                        req.getSession().setAttribute("isLoggedIn", true);
+                        req.getSession().setAttribute("email",emailID);
+                        req.getRequestDispatcher("/Home.jsp").forward(req,res);
+                    }
+
+
                 } catch (Exception e){
                     req.setAttribute("isError", true);
                     req.setAttribute("error", e.getMessage());
